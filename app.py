@@ -18,7 +18,11 @@ def afficher_ma_carte():
 def repertoire():
     return render_template("repertoire.html")
 
-
+from kmeans import calculer_clusters 
+@app.route("/clusters")
+def clusters():
+    resultats = calculer_clusters('static/uploads', n_clusters=3)
+    return render_template("clusters.html", groupes=resultats)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

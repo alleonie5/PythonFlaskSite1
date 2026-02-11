@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Analyse Clusters</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="/">Accueil</a>
+      <a href="/map">À propos de moi</a>
+      <a href="/repertoire">Répertoire d'images</a>
+      <a href="/clusters">K-Means</a>
+    </nav>
+
+    <div class="content">
+      <h1>Intelligence Artificielle : K-Means</h1>
+      <p>
+        Sélectionnez un dossier sur votre PC pour que l'IA le classe par groupes
+        (selon la Taille et les Couleurs).
+      </p>
+
+      <div class="container-action">
+        <form
+          action="/clusters"
+          method="POST"
+          enctype="multipart/form-data"
+          id="form-ia"
+        >
+          <input
+            type="file"
+            id="input-ia"
+            name="dossier_ia"
+            webkitdirectory
+            directory
+            multiple
+            class="input-cache"
+            onchange="document.getElementById('form-ia').submit()"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('input-ia').click()"
+            class="btn-ia"
+          >
+            📁 Sélectionner un dossier à analyser
+          </button>
+        </form>
+      </div>
+
+      {% if groupes %} {% for id_groupe, images in groupes.items() %}
+      <div class="entete-groupe">
+        <h2 class="titre-groupe">Groupe {{ id_groupe + 1 }}</h2>
+      </div>
+
+      <div class="galerie">
+        {% for img in images %}
+        <div class="carte-image">
+          <img
+            src="{{ url_for('static', filename='uploads/' + img) }}"
+            alt="{{ img }}"
+          />
+          <div class="nom-fichier">{{ img }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %} {% else %}
+      <p class="message-vide">
+        Aucune analyse en cours. Choisissez un dossier pour voir l'algorithme
+        travailler !
+      </p>
+      {% endif %}
+    </div>
+  </body>
+</html>

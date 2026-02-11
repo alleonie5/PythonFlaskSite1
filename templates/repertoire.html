@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Répertoire d'images</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="/">Accueil</a>
+      <a href="/map">À propos de moi</a>
+      <a href="/repertoire">Répertoire d'images</a>
+    </nav>
+
+    <div class="content">
+      <h1>Mon Répertoire d'Images</h1>
+      <p>Voici les photos trouvées dans le dossier local.</p>
+
+      <div class="galerie">
+        {% for img in images %}
+        <div class="carte-image">
+          <img
+            src="{{ url_for('static', filename='uploads/' + img) }}"
+            alt="{{ img }}"
+          />
+          <div class="nom-fichier">{{ img }}</div>
+        </div>
+        {% else %}
+        <p class="vide">Aucune image disponible pour le moment.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>

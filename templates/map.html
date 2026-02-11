@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Carte de localisation</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+
+    <style>
+      /* On garde uniquement le style spécifique à la carte ici */
+      #map {
+        height: 500px;
+        width: 100%;
+        z-index: 1;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <a href="/">Accueil</a>
+      <a href="/map">À propos de moi</a>
+      <a href="/repertoire">Répertoire d'images</a>
+    </nav>
+
+    <div class="content">
+      <h1>L'adresse de mon alternance</h1>
+      <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      var lat = 51.024;
+      var lon = 2.3661;
+
+      var map = L.map("map").setView([lat, lon], 15);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap",
+      }).addTo(map);
+
+      L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup("DK Park - Dunkerque")
+        .openPopup();
+    </script>
+  </body>
+</html>

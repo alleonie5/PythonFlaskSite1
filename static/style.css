@@ -1,0 +1,36 @@
+/* static/style.css */
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* Le bandeau noir centré */
+.navbar {
+  background-color: #333;
+  display: flex;
+  justify-content: center; /* Aligne les éléments au centre horizontalement */
+  align-items: center;
+  padding: 0;
+}
+
+/* Style des liens du menu */
+.navbar a {
+  color: white;
+  text-decoration: none;
+  padding: 14px 30px; /* On augmente un peu l'espacement latéral */
+  display: inline-block;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.navbar a:hover {
+  background-color: #555;
+}
+
+/* Contenu de la page */
+.content {
+  padding: 40px 20px;
+  text-align: center;
+}

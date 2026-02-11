@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mon Site Flask</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a href="/">Accueil</a>
+      <a href="/map">À propos de moi</a>
+      <a href="/repertoire">Répertoire d'images</a>
+    </nav>
+
+    <div class="content">
+      <h1>Bienvenue sur ma page d'accueil !</h1>
+      <p>
+        Le site est en cours de construction, veuillez utiliser le menu pour
+        naviguer sur les différentes pages.
+      </p>
+    </div>
+  </body>
+</html>

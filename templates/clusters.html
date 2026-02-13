@@ -76,14 +76,14 @@
           </p>
 
           <img
-            src="{{ url_for('static', filename='processed/' + graphique) }}"
+            src="data:image/png;base64,{{ graphique }}"
             alt="Résultat de l'analyse"
           />
 
           <div class="telechargement">
             <a
-              href="{{ url_for('static', filename='processed/' + graphique) }}"
-              download
+              href="data:image/png;base64,{{ graphique }}"
+              download="resultat_segmentation.png"
             >
               Télécharger le rendu
             </a>

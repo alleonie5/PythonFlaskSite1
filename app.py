@@ -1,26 +1,20 @@
 import os
-import uuid
+import io
+import base64
 import numpy as np
 from PIL import Image
-from flask import Flask, render_template, request, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request
 from sklearn.cluster import KMeans, AgglomerativeClustering
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg") # Indispensable pour fonctionner sans interface graphique
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, linkage
 
 app = Flask(__name__)
 
-# Configuration des dossiers
-UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
-PROCESSED_FOLDER = os.path.join(app.root_path, "static", "processed")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(PROCESSED_FOLDER, exist_ok=True)
-
 # --- ALGORITHME K-MEANS ---
-def segmenter_kmeans(input_path, k):
-    img = Image.open(input_path).convert("RGB")
+def segmenter_kmeans(file, k):
+    img = Image.open(file).convert("RGB")
     w, h = img.size
     scale = min(1.0, 400 / max(w, h))
     img_small = img.resize((int(w * scale), int(h * scale)))
@@ -36,14 +30,15 @@ def segmenter_kmeans(input_path, k):
     ax1.imshow(img_small); ax1.set_title("Originale"); ax1.axis('off')
     ax2.imshow(new_arr); ax2.set_title(f"K-Means (K={k})"); ax2.axis('off')
     
-    res_name = f"km_{uuid.uuid4().hex[:8]}.png"
-    plt.savefig(os.path.join(PROCESSED_FOLDER, res_name), bbox_inches='tight')
+    # Conversion en Base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
     plt.close()
-    return res_name
+    return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 # --- ALGORITHME HIERARCHIQUE ---
-def segmenter_hierarchique(input_path, k):
-    img = Image.open(input_path).convert("RGB")
+def segmenter_hierarchique(file, k):
+    img = Image.open(file).convert("RGB")
     img.thumbnail((150, 150)) 
     arr = np.array(img)
     pixels = arr.reshape(-1, 3)
@@ -63,10 +58,11 @@ def segmenter_hierarchique(input_path, k):
     dendrogram(Z, ax=ax2, truncate_mode='lastp', p=k, no_labels=True)
     ax2.set_title("Dendrogramme")
 
-    res_name = f"hc_{uuid.uuid4().hex[:8]}.png"
-    plt.savefig(os.path.join(PROCESSED_FOLDER, res_name), bbox_inches='tight')
+    # Conversion en Base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
     plt.close()
-    return res_name
+    return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 # --- ROUTES ---
 
@@ -90,16 +86,13 @@ def clusters():
         file = request.files.get("image_segmentation")
         
         if file and file.filename != "":
-            filename = secure_filename(file.filename)
-            path = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(path)
-            
+            # On traite le fichier directement en mémoire
             if algo == "hierarchique":
-                nom_resultat = segmenter_hierarchique(path, k)
+                data_img = segmenter_hierarchique(file, k)
             else:
-                nom_resultat = segmenter_kmeans(path, k)
+                data_img = segmenter_kmeans(file, k)
                 
-            return render_template("clusters.html", graphique=nom_resultat, k_actuel=k, algo_choisi=algo)
+            return render_template("clusters.html", graphique=data_img, k_actuel=k, algo_choisi=algo)
             
     return render_template("clusters.html", graphique=None)
 

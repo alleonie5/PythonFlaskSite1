@@ -1,0 +1,17 @@
+# --- TES DOSSIERS D'IMAGES ---
+# On ignore tout le contenu des dossiers, mais on garde les dossiers eux-mêmes
+static/uploads/*
+static/processed/*
+
+# --- CACHE PYTHON (Comme ta pote) ---
+__pycache__/
+*.pyc
+
+# --- FICHIERS SYSTÈME (Comme ta pote) ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- SÉCURITÉ ---
+# Au cas où tu créerais un fichier d'environnement plus tard
+.env

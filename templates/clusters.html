@@ -10,68 +10,97 @@
   </head>
   <body>
     <nav class="navbar">
-      <a href="/">Accueil</a>
-      <a href="/map">À propos de moi</a>
-      <a href="/repertoire">Répertoire d'images</a>
-      <a href="/clusters">K-Means</a>
+      <a href="{{ url_for('home') }}">Accueil</a>
+      <a href="{{ url_for('map') }}">À propos de moi</a>
+      <a href="{{ url_for('repertoire') }}">Répertoire d'images</a>
+      <a href="{{ url_for('clusters') }}">K-Means</a>
     </nav>
 
     <div class="content">
-      <h1>Intelligence Artificielle : K-Means</h1>
-      <p>
-        Sélectionnez un dossier sur votre PC pour que l'IA le classe par groupes
-        (selon la Taille et les Couleurs).
-      </p>
+      <h1>Analyse et Segmentation d'Images</h1>
 
-      <div class="container-action">
+      <div class="section-reglages">
+        <h3>Réglages</h3>
         <form
-          action="/clusters"
+          action="{{ url_for('clusters') }}"
           method="POST"
           enctype="multipart/form-data"
-          id="form-ia"
+          onsubmit="showLoading()"
         >
-          <input
-            type="file"
-            id="input-ia"
-            name="dossier_ia"
-            webkitdirectory
-            directory
-            multiple
-            class="input-cache"
-            onchange="document.getElementById('form-ia').submit()"
-          />
-          <button
-            type="button"
-            onclick="document.getElementById('input-ia').click()"
-            class="btn-ia"
-          >
-            📁 Sélectionner un dossier à analyser
-          </button>
+          <div class="reglage-item">
+            <label>Choisir une image :</label>
+            <input
+              type="file"
+              name="image_segmentation"
+              accept="image/*"
+              required
+            />
+          </div>
+
+          <div class="reglage-item">
+            <label>Méthode :</label>
+            <select name="algo">
+              <option value="kmeans">K-Means (Rapide)</option>
+              <option value="hierarchique">Hiérarchique (Dendrogramme)</option>
+            </select>
+          </div>
+
+          <div class="reglage-item">
+            <label>Nombre de groupes (K) :</label>
+            <input
+              type="number"
+              name="k_value"
+              value="{{ k_actuel or 5 }}"
+              min="2"
+              max="20"
+            />
+          </div>
+
+          <button type="submit" class="btn-ia">Lancer l'analyse</button>
         </form>
+        <div id="loading-msg" style="display: none">Analyse en cours...</div>
       </div>
 
-      {% if groupes %} {% for id_groupe, images in groupes.items() %}
-      <div class="entete-groupe">
-        <h2 class="titre-groupe">Groupe {{ id_groupe + 1 }}</h2>
-      </div>
+      <hr />
 
-      <div class="galerie">
-        {% for img in images %}
-        <div class="carte-image">
+      <div class="section-affichage">
+        <h3>Résultat</h3>
+
+        {% if graphique %}
+        <div class="resultat-container">
+          <p>
+            <strong>
+              Analyse {{ "Hiérarchique" if algo_choisi == "hierarchique" else
+              "K-Means" }} (K={{ k_actuel }})
+            </strong>
+          </p>
+
           <img
-            src="{{ url_for('static', filename='uploads/' + img) }}"
-            alt="{{ img }}"
+            src="{{ url_for('static', filename='processed/' + graphique) }}"
+            alt="Résultat de l'analyse"
           />
-          <div class="nom-fichier">{{ img }}</div>
+
+          <div class="telechargement">
+            <a
+              href="{{ url_for('static', filename='processed/' + graphique) }}"
+              download
+            >
+              Télécharger le rendu
+            </a>
+          </div>
         </div>
-        {% endfor %}
+        {% else %}
+        <p class="message-vide">
+          Aucune analyse en cours. Sélectionnez une image pour commencer.
+        </p>
+        {% endif %}
       </div>
-      {% endfor %} {% else %}
-      <p class="message-vide">
-        Aucune analyse en cours. Choisissez un dossier pour voir l'algorithme
-        travailler !
-      </p>
-      {% endif %}
     </div>
+
+    <script>
+      function showLoading() {
+        document.getElementById("loading-msg").style.display = "block";
+      }
+    </script>
   </body>
 </html>

@@ -1,46 +1,44 @@
 import os
 import numpy as np
-from PIL import Image
+import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from PIL import Image
 
-def calculer_clusters(dossier_images, n_clusters=3):
-    donnees = []
-    noms_fichiers = []
+# 1. Configuration du chemin
+dossier = "C:\\Users\\leoni\\OneDrive\\Документы\\DEUST WMI 2025-2026\\cours photoshop\\Double exposition\\" # Remplacez par votre nom de dossier
+fichier = "Ca sent le sapin.jpeg" # Remplacez par votre nom de fichier
+chemin_complet = os.path.join(dossier, fichier)
 
-    # Vérifier si le dossier existe
-    if not os.path.exists(dossier_images):
-        return {}
+# 2. Chargement et conversion
+try:
+    img = Image.open(chemin_complet)
+    img_np = np.array(img)
+except FileNotFoundError:
+    print(f"Erreur : Le fichier {chemin_complet} n'a pas été trouvé.")
+    exit()
 
-    for fichier in os.listdir(dossier_images):
-        if fichier.lower().endswith(('.png', '.jpg', '.jpeg')):
-            chemin = os.path.join(dossier_images, fichier)
-            try:
-                with Image.open(chemin) as img:
-                    # 1. Récupérer Largeur (W) et Hauteur (L)
-                    W, L = img.size
-                    
-                    # 2. Récupérer les moyennes R, G, B
-                    img_rgb = img.convert('RGB')
-                    pixels = np.array(img_rgb)
-                    # axis=(0,1) calcule la moyenne sur toute la surface de l'image
-                    R, G, B = np.mean(pixels, axis=(0, 1))
-                    
-                    donnees.append([L, W, R, G, B])
-                    noms_fichiers.append(fichier)
-            except Exception as e:
-                print(f"Erreur sur {fichier}: {e}")
+# 3. Préparation des données pour le ML
+# On transforme l'image (Hauteur, Largeur, RGB) en une longue liste de pixels
+h, w, c = img_np.shape
+pixels = img_np.reshape(-1, c)
 
-    # Si on n'a pas assez d'images pour faire des groupes
-    if len(donnees) < n_clusters:
-        return {0: noms_fichiers}
+# 4. Application du K-Means
+# n_clusters représente le nombre de couleurs finales (segments)
+k = 2 
+model = KMeans(n_clusters=k, n_init=10)
+labels = model.fit_predict(pixels)
 
-    # L'algorithme K-Means : il crée les "tas"
-    kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=42)
-    labels = kmeans.fit_predict(donnees)
+# On remplace chaque pixel par la couleur moyenne de son groupe
+centres_couleurs = model.cluster_centers_.astype(np.uint8)
+image_segmentee = centres_couleurs[labels].reshape(h, w, c)
 
-    # On range les noms de fichiers dans leurs groupes respectifs
-    groupes = {}
-    for i in range(n_clusters):
-        groupes[i] = [noms_fichiers[j] for j in range(len(noms_fichiers)) if labels[j] == i]
-    
-    return groupes
+# 5. Affichage
+plt.figure(figsize=(15, 10))
+plt.subplot(1, 2, 1)
+plt.title("Image Originale")
+plt.imshow(img_np)
+
+plt.subplot(1, 2, 2)
+plt.title(f"Segmentation (K={k})")
+plt.imshow(image_segmentee)
+plt.show()
